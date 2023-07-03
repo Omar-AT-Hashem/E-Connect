@@ -1,11 +1,13 @@
 import Button from '@/components/ui/Button'
-import Image from 'next/image'
+import { db } from '@/lib/db'
 
-export default function Home() {
+export default async function Home() {
+
+  await db.set('hello','hello')
+
   return (
     <main>
       <Button size={'lg'}>Hi</Button>
-      
     </main>
   )
 }
