@@ -1,6 +1,5 @@
 import { ButtonHTMLAttributes, FC } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { twMerge } from "tailwind-merge";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +44,7 @@ const Button: FC<ButtonProps> = ({
       disabled={isLoading}
       {...props}
     >
-      {isLoading ? <Loader2 className="mr h-4 w-4 animate-spin" /> : null}
+      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
       {children}
     </button>
   );
