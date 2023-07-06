@@ -13,9 +13,9 @@ const Login: FC<loginProps> = () => {
   async function loginWithGoogle() {
     setIsLoading(true);
     try {
-      signIn("google");
+      await signIn("google");
     } catch (error) {
-      toast.error("something went wrong with your login.");
+      toast.error("Something went wrong with your login.");
     } finally {
       setIsLoading(false);
     }
