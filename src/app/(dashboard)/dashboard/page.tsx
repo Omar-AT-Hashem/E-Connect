@@ -6,7 +6,7 @@ const page = async () => {
     const session = await getServerSession()
 
   return (
-    <div>page</div>
+    <div>Dashboard</div>
   )
 }
 
