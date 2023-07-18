@@ -1,9 +1,11 @@
 "use client";
 
+import { pusherClient } from "@/lib/pusher";
+import { toPusherKey } from "@/lib/utils";
 import axios from "axios";
 import { Check, UserPlus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 interface FriendRequestsProps {
   incomingFriendRequests: IncomingFriendRequest[];
@@ -19,6 +21,29 @@ const FriendRequests: FC<FriendRequestsProps> = ({
   const [friendRequests, setFriendRequests] = useState<IncomingFriendRequest[]>(
     incomingFriendRequests
   );
+
+  useEffect(() => {
+    pusherClient.subscribe(
+      toPusherKey(`user:${sessionId}:incoming_friend_requests`)
+    );
+
+    const friendRequestHandler = ({
+      senderId,
+      senderEmail,
+    }: IncomingFriendRequest) => {
+      setFriendRequests((prev) => [...prev, { senderId, senderEmail }]);
+    };
+
+    pusherClient.bind("incoming_friend_requests", friendRequestHandler);
+
+    return () => {
+      pusherClient.unsubscribe(
+        toPusherKey(`user:${sessionId}:incoming_friend_requests`)
+      );
+
+      pusherClient.unbind("incoming_friend_requests", friendRequestHandler);
+    };
+  }, []);
 
   const acceptFriend = async (senderId: string) => {
     await axios.post("/api/friends/accept", { id: senderId });
@@ -57,7 +82,7 @@ const FriendRequests: FC<FriendRequestsProps> = ({
               <Check className="font-semibold text-white w-3/4 h-3/4" />
             </button>
             <button
-            onClick={() => rejectFriend(request.senderId)}
+              onClick={() => rejectFriend(request.senderId)}
               aria-label="reject friend"
               className="w-8 h-8 bg-red-600 hover:bg-red-700 grid place-items-center rounded-full transition hover:shadow-md"
             >
