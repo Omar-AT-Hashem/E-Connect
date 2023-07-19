@@ -4,6 +4,8 @@ import Button from "@/components/ui/Button";
 import { FC, useState } from "react";
 import { signIn } from "next-auth/react";
 import { toast } from "react-hot-toast";
+import Image from "next/image";
+import logo from "../../../../public/E-Connect.png";
 
 interface loginProps {}
 
@@ -26,7 +28,14 @@ const Login: FC<loginProps> = () => {
       <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full flex flex-col items-center max-w-md space-y-8">
           <div className="flex flex-col items-center gap-8">
-            logo
+            <div className="relative rounded-full">
+              <Image
+                referrerPolicy="no-referrer"
+                src={logo}
+                alt="Site logo"
+                height={150}
+              />
+            </div>
             <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
               Sign in to your account
             </h2>
