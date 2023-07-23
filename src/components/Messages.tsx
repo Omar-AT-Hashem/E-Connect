@@ -37,7 +37,7 @@ const Messages: FC<MessagesProps> = ({
     pusherClient.bind("incoming-message", messageHandler);
 
     return () => {
-      pusherClient.unsubscribe(
+        pusherClient.unsubscribe(
         toPusherKey(`user:${sessionId}:incoming_friend:requests`)
       );
 
