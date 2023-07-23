@@ -49,14 +49,12 @@ export async function POST(req: Request) {
 
     const message = messageValidator.parse(messageData);
 
-   await Promise.all([
-       pusherServer.trigger(
-        toPusherKey(`chat:${chatId}`),
-        "incoming-message",
-        message
-      ),
-  
-       pusherServer.trigger(
+    pusherServer.trigger(
+      toPusherKey(`chat:${chatId}`),
+      "incoming-message",
+      message
+    ),
+      pusherServer.trigger(
         toPusherKey(`user:${friendId}:chats`),
         "new_message",
         {
@@ -65,21 +63,18 @@ export async function POST(req: Request) {
           senderName: sender.name,
         }
       ),
-  
       // all valid, send the message
-       db.zadd(`chat:${chatId}:messages`, {
+      db.zadd(`chat:${chatId}:messages`, {
         score: timestamp,
         member: JSON.stringify(message),
       }),
-    ])
-    // notify all connected chat room clients
-    
+      // notify all connected chat room clients
 
-    // all valid, send the message
-    await db.zadd(`chat:${chatId}:messages`, {
-      score: timestamp,
-      member: JSON.stringify(message),
-    });
+      // all valid, send the message
+      db.zadd(`chat:${chatId}:messages`, {
+        score: timestamp,
+        member: JSON.stringify(message),
+      });
 
     return new Response("OK");
   } catch (error) {
