@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { pusherServer } from "@/lib/pusher";
 import { toPusherKey } from "@/lib/utils";
 import { Message, messageValidator } from "@/lib/validations/message";
-import { timeStamp } from "console";
 import { nanoid } from "nanoid";
 import { getServerSession } from "next-auth";
 
@@ -37,7 +36,6 @@ export async function POST(req: Request) {
       "get",
       `user:${session.user.id}`
     )) as string;
-
     const sender = JSON.parse(rawSender) as User;
 
     const timestamp = Date.now();
@@ -51,36 +49,35 @@ export async function POST(req: Request) {
 
     const message = messageValidator.parse(messageData);
 
-    Promise.all([
-      await pusherServer.trigger(
-        toPusherKey(`chat:${chatId}`),
-        "incoming-message",
-        message
-      ),
+    // notify all connected chat room clients
+    await pusherServer.trigger(
+      toPusherKey(`chat:${chatId}`),
+      "incoming-message",
+      message
+    );
 
-      await pusherServer.trigger(
-        toPusherKey(`user:${friendId}:chats`),
-        "new_message",
-        {
-          ...message,
-          senderImg: sender.image,
-          senderName: sender.name,
-        }
-      ),
+    await pusherServer.trigger(
+      toPusherKey(`user:${friendId}:chats`),
+      "new_message",
+      {
+        ...message,
+        senderImg: sender.image,
+        senderName: sender.name,
+      }
+    );
 
-      await db.zadd(`chat:${chatId}:messages`, {
-        score: timestamp,
-        member: JSON.stringify(message),
-      }),
-    ]);
-
-    // All valid send message
+    // all valid, send the message
+    await db.zadd(`chat:${chatId}:messages`, {
+      score: timestamp,
+      member: JSON.stringify(message),
+    });
 
     return new Response("OK");
   } catch (error) {
     if (error instanceof Error) {
       return new Response(error.message, { status: 500 });
     }
-    return new Response("Internal server error", { status: 500 });
+
+    return new Response("Internal Server Error", { status: 500 });
   }
 }
